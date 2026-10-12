@@ -1,0 +1,208 @@
+---
+import '../styles/global.css';
+import { site, reviewMode } from '../lib/data';
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title, description = 'The Orbital Launch Vehicle Team is a Virginia Tech student organization working to put the first collegiate payload into low Earth orbit.' } = Astro.props;
+const pageTitle = title ? `${title} | OLVT` : `${site.name} | Virginia Tech`;
+
+const nav = [
+  { href: '/vehicles/', label: 'Vehicles' },
+  { href: '/team/', label: 'Team' },
+  { href: '/lab/', label: 'The Lab' },
+  { href: '/join/', label: 'Join' },
+  { href: '/sponsors/', label: 'Sponsors' },
+  { href: '/news/', label: 'News' },
+];
+const path = Astro.url.pathname;
+const isCurrent = (href: string) => path === href || path.startsWith(href);
+const year = new Date().getFullYear();
+---
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+    <title>{pageTitle}</title>
+    <meta name="description" content={description} />
+    <meta property="og:title" content={pageTitle} />
+    <meta property="og:description" content={description} />
+    <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/archivo-latin-wdth-normal.woff2" as="font" type="font/woff2" crossorigin />
+  </head>
+  <body>
+    <a class="skip" href="#main">Skip to content</a>
+
+    {reviewMode && (
+      <div class="review-banner">
+        <div class="wrap">
+          Prototype for review. Yellow notes mark content a person needs to check before launch. Codes like R4 match the ranked list in REVIEW.md.
+        </div>
+      </div>
+    )}
+
+    <header class="site-header">
+      <div class="wrap header-row">
+        <a class="wordmark" href="/" aria-label={`${site.shortName} home`}>
+          <span class="wordmark-mark">OLVT</span>
+          <span class="wordmark-text">Orbital Launch Vehicle Team<br />Virginia Tech</span>
+        </a>
+
+        <nav class="nav-wide" aria-label="Main">
+          <ul>
+            {nav.map((item) => (
+              <li><a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a></li>
+            ))}
+          </ul>
+        </nav>
+
+        <details class="nav-narrow">
+          <summary>Menu</summary>
+          <nav aria-label="Main">
+            <ul>
+              {nav.map((item) => (
+                <li><a href={item.href} aria-current={isCurrent(item.href) ? 'page' : undefined}>{item.label}</a></li>
+              ))}
+              <li><a href="/contact/">Contact</a></li>
+            </ul>
+          </nav>
+        </details>
+      </div>
+    </header>
+
+    <main id="main">
+      <slot />
+    </main>
+
+    <footer class="site-footer">
+      <div class="wrap footer-grid">
+        <div class="footer-id">
+          <a class="wordmark" href="/">
+            <span class="wordmark-mark">OLVT</span>
+            <span class="wordmark-text">Orbital Launch Vehicle Team<br />Virginia Tech</span>
+          </a>
+          <p class="small muted">Supported by the {site.supporters.join(' and the ')} at Virginia Tech.</p>
+        </div>
+
+        <div>
+          <h2 class="footer-head">Explore</h2>
+          <ul class="footer-list">
+            {nav.map((item) => <li><a href={item.href}>{item.label}</a></li>)}
+            <li><a href="/contact/">Contact</a></li>
+          </ul>
+        </div>
+
+        <div>
+          <h2 class="footer-head">Follow</h2>
+          <ul class="footer-list">
+            {site.socials.map((s) => <li><a href={s.url} rel="noopener" target="_blank">{s.name}</a></li>)}
+          </ul>
+        </div>
+
+        <div>
+          <h2 class="footer-head">Email</h2>
+          <p class="email">{site.email}</p>
+        </div>
+      </div>
+      <div class="wrap small muted copyright">© {year} {site.name} at {site.university}</div>
+    </footer>
+  </body>
+</html>
+
+<style>
+  .skip {
+    position: absolute;
+    left: 1rem;
+    top: -3rem;
+    background: var(--surface);
+    padding: 0.5rem 0.75rem;
+    z-index: 10;
+  }
+  .skip:focus { top: 1rem; }
+
+  .site-header { border-bottom: 1px solid var(--rule); }
+  .header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1.5rem;
+    padding-block: 1rem;
+  }
+
+  .wordmark { display: inline-flex; align-items: center; gap: 0.7rem; color: var(--ink); text-decoration: none; }
+  .wordmark-mark {
+    font-stretch: 125%; font-variation-settings: "wdth" 125;
+    font-weight: 850;
+    font-size: 1.5rem;
+    letter-spacing: 0.01em;
+    line-height: 1;
+  }
+  .wordmark-text {
+    font-size: 0.75rem;
+    line-height: 1.25;
+    color: var(--ink-muted);
+    padding-left: 0.7rem;
+    border-left: 1px solid var(--rule-strong);
+  }
+
+  nav ul { list-style: none; margin: 0; padding: 0; }
+  .nav-wide ul { display: flex; gap: 0.25rem 1.5rem; flex-wrap: wrap; }
+  nav a { color: var(--ink); text-decoration: none; font-weight: 550; font-stretch: 108%; font-variation-settings: "wdth" 108; }
+  nav a:hover { color: var(--accent-ink); }
+  nav a[aria-current="page"] { color: var(--accent-ink); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 0.4em; }
+
+  .nav-narrow { display: none; position: relative; }
+  .nav-narrow summary {
+    list-style: none;
+    cursor: pointer;
+    font-weight: 600;
+    padding: 0.45rem 0.85rem;
+    border: 1px solid var(--rule-strong);
+    border-radius: var(--radius);
+  }
+  .nav-narrow summary::-webkit-details-marker { display: none; }
+  .nav-narrow nav {
+    position: absolute;
+    right: 0;
+    top: calc(100% + 0.5rem);
+    z-index: 5;
+    background: var(--surface);
+    border: 1px solid var(--rule);
+    border-radius: var(--radius);
+    padding: 0.5rem;
+    min-width: 12rem;
+  }
+  .nav-narrow li a { display: block; padding: 0.6rem 0.75rem; }
+
+  @media (max-width: 860px) {
+    .nav-wide { display: none; }
+    .nav-narrow { display: block; }
+  }
+  @media (max-width: 420px) {
+    .wordmark-text { display: none; }
+  }
+
+  .site-footer { border-top: 1px solid var(--rule); background: var(--surface); margin-top: 0; }
+  .footer-grid {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr 1.3fr;
+    gap: 2rem;
+    padding-block: 3rem 2rem;
+  }
+  .footer-id { display: grid; gap: 1rem; align-content: start; max-width: 34ch; }
+  .footer-head { font-size: 0.875rem; font-stretch: 100%; font-variation-settings: "wdth" 100; font-weight: 700; margin-bottom: 0.6rem; color: var(--ink-muted); }
+  .footer-list { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.35rem; }
+  .footer-list a { color: var(--ink); text-decoration: none; }
+  .footer-list a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .email { user-select: all; font-weight: 600; overflow-wrap: anywhere; }
+  .copyright { padding-block: 0 2rem; }
+
+  @media (max-width: 760px) {
+    .footer-grid { grid-template-columns: 1fr 1fr; }
+    .footer-id { grid-column: 1 / -1; }
+  }
+</style>

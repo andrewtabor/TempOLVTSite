@@ -1,0 +1,188 @@
+---
+import Base from '../layouts/Base.astro';
+import AltitudeChart from '../components/AltitudeChart.astro';
+import FlightRecord from '../components/FlightRecord.astro';
+import Review from '../components/Review.astro';
+import Photo from '../components/Photo.astro';
+import { site, vehicles, posts, postDate, sponsors, reviewMode, statusLabel } from '../lib/data';
+
+const current = vehicles.find((v) => v.slug === site.currentProgram.vehicle);
+const latest = posts.slice(0, 3);
+---
+<Base>
+  <section class="hero wrap">
+    <div class="hero-text">
+      <h1>Students building toward orbit.</h1>
+      <p class="lead">
+        OLVT is a Virginia Tech team working to become the first collegiate organization to put an object into low Earth orbit. We design, build and fly our own rockets.
+      </p>
+      <div class="actions">
+        <a class="button" href="/join/">Apply to join</a>
+        <a class="button secondary" href="/sponsors/">Sponsor the team</a>
+      </div>
+    </div>
+    <div class="hero-chart">
+      <AltitudeChart />
+    </div>
+  </section>
+
+  {current && (
+    <section class="now">
+      <div class="wrap now-grid">
+        <div class="now-text">
+          <h2 class="now-label">Now building</h2>
+          <a class="now-name vehicle-name" href={`/vehicles/${current.slug}/`}>{current.name}</a>
+          <span class="pill" data-status={current.status}>{site.currentProgram.status || statusLabel[current.status]}</span>
+          <p class="now-update">{site.currentProgram.update}</p>
+          <Review id="R4" note="Replace this with where Hokie 0.75 stands now (design phase, test campaign, target launch window). The old site's last update was January 2023." />
+          <p><a href={`/vehicles/${current.slug}/`}>Read about {current.name}</a></p>
+        </div>
+        <dl class="specs now-specs">
+          {current.specs.slice(0, 4).map((s) => (
+            <div><dt>{s.label}</dt><dd>{s.value}</dd></div>
+          ))}
+        </dl>
+      </div>
+    </section>
+  )}
+
+  <section class="section wrap">
+    <div class="section-head">
+      <h2>Flight record</h2>
+      <p class="muted">Every rocket the team has built since 2016.</p>
+    </div>
+    <FlightRecord />
+  </section>
+
+  <section class="section wrap about">
+    <div class="about-text">
+      <h2>Ten students in 2016. More than a hundred today.</h2>
+      <div class="prose">
+        <p>OLVT started in the spring of 2016 with ten students and one long-term goal: be the first collegiate organization to put an object into low Earth orbit.</p>
+        <p>Today more than a hundred members from across Virginia Tech work on avionics, structures, propulsion, launch safety, trajectory analysis and business. Every student engineer has a real role in designing, integrating and flying our vehicles, and business members raise and manage real funding.</p>
+        <p>We're supported by the {site.supporters[0]} and the {site.supporters[1]}.</p>
+      </div>
+      <Review id="R7" note="Confirm the founding story and the member count before launch. Both come from the old home page." />
+    </div>
+    <Photo needed="The full team at a launch, with a rocket on the rail" ratio="4 / 3" />
+  </section>
+
+  <section class="section wrap paths">
+    <div class="path">
+      <h2>Join the team</h2>
+      <p>Engineers design, build and fly the rockets. Business members raise and manage real funding and run sponsor relations. Every new member builds and flies their own Level 1 certification rocket.</p>
+      <p><a class="button" href="/join/">See how to join</a></p>
+    </div>
+    <div class="path">
+      <h2>Sponsor the team</h2>
+      <p>Sponsors get our resume book, their logo on every rocket we fly, and a place in our videos and team apparel.</p>
+      <p><a class="button secondary" href="/sponsors/">See sponsorship perks</a></p>
+    </div>
+  </section>
+
+  {latest.length > 0 && (
+    <section class="section wrap">
+      <div class="section-head row-head">
+        <h2>News</h2>
+        <a href="/news/">All news</a>
+      </div>
+      <ul class="news-list">
+        {latest.map((p) => (
+          <li>
+            <time class="small muted tnum">{postDate(p)}{p.draft ? ', draft' : ''}</time>
+            <a href={`/news/${p.slug}/`} class="news-title">{p.title}</a>
+            <p class="muted">{p.summary}</p>
+          </li>
+        ))}
+      </ul>
+    </section>
+  )}
+
+  {(sponsors.length > 0 || reviewMode) && (
+    <section class="section wrap">
+      <div class="section-head">
+        <h2>Our sponsors</h2>
+      </div>
+      {sponsors.length > 0 ? (
+        <ul class="logo-row">
+          {sponsors.map((s) => (
+            <li>
+              <a href={s.url} rel="noopener" target="_blank">
+                {s.logo ? <img src={s.logo} alt={s.name} /> : <span>{s.name}</span>}
+              </a>
+            </li>
+          ))}
+        </ul>
+      ) : (
+        <>
+          <Review id="R2" note="No sponsors are listed yet. The old Sponsors page's logos couldn't be recovered. Add each sponsor to src/data/sponsors.yaml, with permission to show their logo." />
+          <ul class="logo-row placeholder">
+            {Array.from({ length: 5 }).map(() => <li><span>Sponsor logo</span></li>)}
+          </ul>
+        </>
+      )}
+    </section>
+  )}
+</Base>
+
+<style>
+  .hero {
+    display: grid;
+    grid-template-columns: minmax(0, 5fr) minmax(0, 6fr);
+    gap: clamp(2rem, 5vw, 4.5rem);
+    align-items: center;
+    padding-block: clamp(2.5rem, 6vw, 5rem);
+  }
+  .hero-text { display: grid; gap: 1.5rem; align-content: center; min-width: 0; }
+  .hero-chart { min-width: 0; }
+
+  .now { background: var(--surface); border-block: 1px solid var(--rule); --chart-bg: var(--surface); }
+  .now-grid {
+    display: grid;
+    grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    padding-block: clamp(2.5rem, 6vw, 4rem);
+    align-items: start;
+  }
+  .now-text { display: grid; gap: 1rem; justify-items: start; min-width: 0; }
+  .now-label { font-size: 1rem; font-stretch: 100%; font-variation-settings: "wdth" 100; font-weight: 600; color: var(--mark-next); }
+  .now-name {
+    font-size: clamp(2.75rem, 8vw, 5.5rem);
+    line-height: 0.95;
+    color: var(--ink);
+    text-decoration: none;
+  }
+  .now-name:hover { color: var(--accent-ink); }
+  .now-update { max-width: 52ch; }
+  .now-specs { align-self: center; }
+
+  .about { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(2rem, 5vw, 4rem); align-items: center; }
+  .about-text { display: grid; gap: 1.5rem; min-width: 0; }
+
+  .paths { display: grid; grid-template-columns: 1fr 1fr; gap: 0; padding-block: 0; }
+  .path { display: grid; gap: 1rem; align-content: start; padding-block: clamp(3rem, 6vw, 4.5rem); min-width: 0; }
+  .path p { max-width: 46ch; }
+  .path:first-child { padding-right: clamp(1.5rem, 4vw, 3.5rem); border-right: 1px solid var(--rule); }
+  .path:last-child { padding-left: clamp(1.5rem, 4vw, 3.5rem); }
+
+  .row-head { display: flex; align-items: baseline; justify-content: space-between; max-width: none; }
+
+  .news-list { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 2rem; }
+  .news-list li { display: grid; gap: 0.4rem; align-content: start; border-top: 2px solid var(--ink); padding-top: 1rem; }
+  .news-title { font-size: var(--step-1); font-weight: 650; font-stretch: 108%; font-variation-settings: "wdth" 108; color: var(--ink); text-decoration: none; line-height: 1.25; }
+  .news-title:hover { color: var(--accent-ink); text-decoration: underline; }
+
+  .logo-row { list-style: none; margin: 1.5rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(9rem, 1fr)); gap: 1rem; }
+  .logo-row li { display: grid; place-items: center; min-height: 5rem; border: 1px solid var(--rule); border-radius: var(--radius); padding: 1rem; }
+  .logo-row img { max-height: 3rem; width: auto; }
+  .logo-row.placeholder li { border-style: dashed; color: var(--ink-muted); font-size: var(--step--1); }
+
+  @media (max-width: 900px) {
+    .hero, .now-grid, .about { grid-template-columns: 1fr; }
+  }
+  @media (max-width: 700px) {
+    .paths { grid-template-columns: 1fr; }
+    .path:first-child { padding-right: 0; border-right: 0; border-bottom: 1px solid var(--rule); }
+    .path:last-child { padding-left: 0; }
+  }
+</style>

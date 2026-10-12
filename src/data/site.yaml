@@ -1,0 +1,57 @@
+# Site-wide settings. Edit this file to update contact info, recruiting dates,
+# and the "Now building" block on the home page. No code changes needed.
+
+name: Orbital Launch Vehicle Team
+shortName: OLVT
+university: Virginia Tech
+email: olvt@vt.edu
+founded: 2016
+
+# Shown on the home page under "Now building". `vehicle` must match a file
+# in src/content/vehicles/ (without .md).
+currentProgram:
+  vehicle: hokie-0-75
+  status: In development
+  # One or two sentences on where the program stands right now. REVIEW R4.
+  update: >-
+    Hokie 0.75 is the team's space shot: a two-stage sounding rocket designed
+    to carry a 5 kg payload past the Kármán line. Skipper 1, Skipper 2 and
+    Test Turkey each tested pieces of it in flight.
+
+# Recruiting. The Join page opens and closes the application automatically
+# from these dates (YYYY-MM-DD). Leave `opens` blank if applications are open
+# until the deadline. REVIEW R5.
+applications:
+  term: Fall 2026
+  opens: 2026-07-18
+  priorityDeadline: 2026-08-15
+  deadline: 2026-09-04
+  formUrl: https://forms.office.com/r/VnLnpecSD9
+
+# Forms for the Contact and Sponsors pages. Paste the Microsoft Forms links
+# here once the team-owned forms exist. REVIEW R18.
+forms:
+  contact: ""
+  sponsorInterest: ""
+
+sponsorPacketUrl: "" # REVIEW R19
+
+socials:
+  - name: Instagram
+    url: https://www.instagram.com/orbitallaunchvt/
+  - name: YouTube
+    url: https://www.youtube.com/channel/UC2uJWInxswADAAHfGQLBu_g
+  - name: TikTok
+    url: https://www.tiktok.com/@orbitallaunchvehicleteam
+  - name: Facebook
+    url: https://www.facebook.com/orbitallaunchatVT/
+  - name: X
+    url: https://twitter.com/orbitallaunchvt
+
+supporters:
+  - Kevin T. Crofton Department of Aerospace and Ocean Engineering
+  - Bradley Department of Electrical and Computer Engineering
+
+lab:
+  name: Advanced Engineering Design Lab
+  url: https://eng.vt.edu/advanced-engineering-design-lab.html

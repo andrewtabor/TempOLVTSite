@@ -1,0 +1,14 @@
+---
+// Shows a photo when `src` is set. Without one, the review preview shows a
+// labeled placeholder describing the shot needed; the public site shows nothing.
+import { reviewMode } from '../lib/data';
+
+interface Props { src?: string; alt?: string; needed?: string; ratio?: string }
+const { src, alt = '', needed = 'Photo needed', ratio } = Astro.props;
+const style = ratio ? `aspect-ratio: ${ratio}` : undefined;
+---
+{src ? (
+  <figure class="photo"><img src={src} alt={alt} loading="lazy" style={style} /></figure>
+) : reviewMode ? (
+  <figure class="photo-slot" style={style}><span>Photo needed: {needed}</span></figure>
+) : null}

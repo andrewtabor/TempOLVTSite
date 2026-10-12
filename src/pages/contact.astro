@@ -1,0 +1,43 @@
+---
+import Base from '../layouts/Base.astro';
+import Review from '../components/Review.astro';
+import { site } from '../lib/data';
+---
+<Base title="Contact" description="Get in touch with the Orbital Launch Vehicle Team at Virginia Tech.">
+  <section class="wrap head">
+    <h1>Contact</h1>
+    <p class="lead">Students, alumni, faculty, sponsors and donors: we'd like to hear from you.</p>
+  </section>
+
+  <section class="wrap grid">
+    <div class="block">
+      <h2>Email</h2>
+      <p class="email">{site.email}</p>
+      {site.forms.contact && <p><a class="button" href={site.forms.contact} rel="noopener" target="_blank">Send us a message</a></p>}
+      <Review id="R18" note="The old site's contact form ran on WordPress and won't carry over. Make a team-owned Microsoft Form and add its link to src/data/site.yaml, or keep email only." />
+    </div>
+    <div class="block">
+      <h2>Looking for something specific?</h2>
+      <ul class="links">
+        <li><a href="/join/">Joining the team</a></li>
+        <li><a href="/sponsors/">Sponsoring the team</a></li>
+        <li><a href="/lab/">Visiting the lab</a></li>
+      </ul>
+    </div>
+    <div class="block">
+      <h2>Follow</h2>
+      <ul class="links">
+        {site.socials.map((s) => <li><a href={s.url} rel="noopener" target="_blank">{s.name}</a></li>)}
+      </ul>
+    </div>
+  </section>
+</Base>
+
+<style>
+  .head { display: grid; gap: 1.25rem; padding-block: clamp(2.5rem, 6vw, 4.5rem) 2rem; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(16rem, 1fr)); gap: 2.5rem; padding-bottom: clamp(3rem, 7vw, 5rem); }
+  .block { display: grid; gap: 0.75rem; align-content: start; border-top: 2px solid var(--ink); padding-top: 1rem; min-width: 0; }
+  .block h2 { font-size: var(--step-1); }
+  .email { font-size: var(--step-1); font-weight: 650; user-select: all; overflow-wrap: anywhere; }
+  .links { list-style: none; margin: 0; padding: 0; display: grid; gap: 0.4rem; }
+</style>

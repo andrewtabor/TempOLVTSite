@@ -1,0 +1,221 @@
+---
+// Every OLVT vehicle plotted by first flight year and highest altitude, on a
+// log scale, against the Kármán line and low Earth orbit. Built from the
+// vehicle Markdown files, so a new vehicle appears here automatically, and
+// labels are placed automatically so they don't collide.
+//
+// Two drawings are rendered: a wide one and a compact one for phones, so the
+// labels stay readable at every width. CSS shows one at a time.
+import { vehicles, vehicleYears } from '../lib/data';
+
+interface Props { id?: string }
+const { id = 'altitude-chart' } = Astro.props;
+
+const KARMAN_FT = 328084; // 100 km
+const LEO_FT = 524934;    // 160 km
+const PRESENT = 2026.2;
+const fmt = (n: number) => n.toLocaleString('en-US');
+
+type Box = { x1: number; y1: number; x2: number; y2: number };
+const hits = (a: Box, b: Box) => a.x1 < b.x2 && a.x2 > b.x1 && a.y1 < b.y2 && a.y2 > b.y1;
+const textWidth = (s: string, fs: number, k = 0.53) => s.length * fs * k;
+const overlap = (a: Box, b: Box) => Math.max(0, Math.min(a.x2, b.x2) - Math.max(a.x1, b.x1)) * Math.max(0, Math.min(a.y2, b.y2) - Math.max(a.y1, b.y1));
+
+interface Cfg {
+  key: 'wide' | 'compact';
+  W: number; H: number;
+  m: { l: number; r: number; t: number; b: number };
+  X0: number; X1: number; NEXT: number;
+  fs: number; fsSub: number; fsTick: number; fsRef: number;
+  xTicks: number[];
+  yTickLabel: (t: number) => string;
+}
+
+const configs: Cfg[] = [
+  {
+    key: 'wide', W: 600, H: 440, m: { l: 92, r: 20, t: 14, b: 40 },
+    X0: 2015.4, X1: 2027.8, NEXT: 2027.2,
+    fs: 15, fsSub: 13, fsTick: 12.5, fsRef: 13,
+    xTicks: [2016, 2018, 2020, 2022, 2024],
+    yTickLabel: (t) => `${fmt(t)} ft`,
+  },
+  {
+    key: 'compact', W: 360, H: 470, m: { l: 50, r: 10, t: 12, b: 34 },
+    X0: 2015.5, X1: 2029.2, NEXT: 2028.5,
+    fs: 13, fsSub: 11.5, fsTick: 11, fsRef: 11.5,
+    xTicks: [2016, 2019, 2022, 2025],
+    yTickLabel: (t) => (t >= 1e6 ? '1M ft' : `${t / 1000}k ft`),
+  },
+];
+
+function layout(c: Cfg) {
+  const pw = c.W - c.m.l - c.m.r;
+  const ph = c.H - c.m.t - c.m.b;
+  const x = (yr: number) => c.m.l + ((yr - c.X0) / (c.X1 - c.X0)) * pw;
+  const y = (ft: number) => c.m.t + ph * (1 - (Math.log10(ft) - 3) / 3);
+  const base = c.m.t + ph;
+  const bounds: Box = { x1: c.m.l + 2, y1: c.m.t, x2: c.W - c.m.r, y2: base - 2 };
+  const inBounds = (b: Box) => b.x1 >= bounds.x1 && b.x2 <= bounds.x2 && b.y1 >= bounds.y1 && b.y2 <= bounds.y2;
+
+  const obstacles: Box[] = [];
+
+  // Reference labels first; vehicle labels avoid them.
+  const bandLabel = { text: 'Low Earth orbit, the goal for Hokie 1', x: c.m.l + 8, y: y(LEO_FT) - Math.max(8, (y(LEO_FT) - c.m.t) / 2 - c.fsRef * 0.35) };
+  const karmanLabel = { text: 'Kármán line, 100 km', x: c.m.l + 8, y: y(KARMAN_FT) - 7 };
+  for (const l of [bandLabel, karmanLabel]) {
+    obstacles.push({ x1: l.x, y1: l.y - c.fsRef, x2: l.x + textWidth(l.text, c.fsRef), y2: l.y + 3 });
+  }
+
+  const marks = vehicles.map((v) => {
+    const planned = v.status === 'in-development' || !v.firstYear;
+    const x1 = x(planned ? c.NEXT : Number(v.firstYear));
+    const last = v.lastYear === 'present' ? PRESENT : Number(v.lastYear ?? v.firstYear);
+    const x2 = planned ? x1 : x(last);
+    const cy = y(v.apogeeFt);
+    const altitude = `${fmt(v.apogeeFt)} ft${v.apogeeSimulated ? ', simulated' : ''}`;
+    return { v, planned, cx: x1, cx2: x2, cy, altitude };
+  });
+
+  // Marks, spans and the trajectory are obstacles for every label.
+  for (const d of marks) {
+    const r = d.planned ? 10 : 7;
+    obstacles.push({ x1: d.cx - r, y1: d.cy - r, x2: d.cx + r, y2: d.cy + r });
+    if (d.cx2 > d.cx) obstacles.push({ x1: d.cx, y1: d.cy - 3, x2: d.cx2, y2: d.cy + 3 });
+    if (d.planned) obstacles.push({ x1: d.cx - 4, y1: d.cy, x2: d.cx + 4, y2: base });
+  }
+
+  const placed = marks.map((d) => {
+    const lines = d.planned ? [d.v.name, d.altitude] : [d.v.name];
+    const w = Math.max(textWidth(lines[0], c.fs, d.planned ? 0.6 : 0.53), lines[1] ? textWidth(lines[1], c.fsSub) : 0);
+    const h = d.planned ? c.fs + 5 + c.fsSub : c.fs;
+    const g = d.planned ? 14 : 7;
+    const cands: [number, number][] = [
+      [d.cx + 5, d.cy - g - h],      // above right
+      [d.cx - 5 - w, d.cy - g - h],  // above left
+      [d.cx + 5, d.cy + g],          // below right
+      [d.cx - 5 - w, d.cy + g],      // below left
+      [d.cx + g + 3, d.cy - h / 2],  // right
+      [d.cx - g - 3 - w, d.cy - h / 2], // left
+      [d.cx - w / 2, d.cy - g - 2 - h], // above
+      [d.cx - w / 2, d.cy + g + 2],  // below
+    ];
+    const order = d.planned ? [3, 5, 1, 0, 2, 4, 6, 7] : [0, 1, 2, 3, 4, 5, 6, 7];
+    let box: Box | null = null;
+    for (const i of order) {
+      const [bx, by] = cands[i];
+      const b = { x1: bx, y1: by, x2: bx + w, y2: by + h };
+      if (inBounds(b) && !obstacles.some((o) => hits(b, o))) { box = b; break; }
+    }
+    if (!box) {
+      // Nothing is perfectly clear: take the in-bounds spot with the least overlap.
+      let best = Infinity;
+      for (const i of order) {
+        const [bx, by] = cands[i];
+        const b = { x1: bx, y1: by, x2: bx + w, y2: by + h };
+        if (!inBounds(b)) continue;
+        const cost = obstacles.reduce((sum, o) => sum + overlap(b, o), 0);
+        if (cost < best) { best = cost; box = b; }
+      }
+      if (!box) { const [bx, by] = cands[order[0]]; box = { x1: bx, y1: by, x2: bx + w, y2: by + h }; }
+    }
+    obstacles.push(box);
+    const tip = `${d.v.name}: ${d.altitude}. ${d.planned ? 'In development.' : `Flown ${vehicleYears(d.v)}, ${d.v.flights} flight${d.v.flights === 1 ? '' : 's'}.`}`;
+    return {
+      ...d,
+      tip,
+      lx: box.x1,
+      ly: box.y1 + c.fs * 0.8,
+      ly2: box.y1 + c.fs + 5 + c.fsSub * 0.8,
+    };
+  });
+
+  return { c, pw, ph, x, y, base, bandLabel, karmanLabel, marks: placed, yTicks: [1e3, 1e4, 1e5, 1e6] };
+}
+
+const views = configs.map(layout);
+
+const flown = vehicles.filter((v) => v.status !== 'in-development');
+const highest = flown.reduce((a, b) => (b.apogeeFt > a.apogeeFt ? b : a), flown[0]);
+const target = vehicles.find((v) => v.status === 'in-development');
+const summary = `OLVT's flown rockets have reached between ${fmt(Math.min(...flown.map((v) => v.apogeeFt)))} and ${fmt(highest.apogeeFt)} feet (${highest.name}).${target ? ` ${target.name} is designed to reach ${fmt(target.apogeeFt)} feet, above the Kármán line at 100 km.` : ''}`;
+---
+<figure class="altitude">
+  {views.map((L) => (
+    <svg viewBox={`0 0 ${L.c.W} ${L.c.H}`} role="img" aria-labelledby={`${id}-${L.c.key}-t ${id}-${L.c.key}-d`} class={`chart chart-${L.c.key}`}>
+      <title id={`${id}-${L.c.key}-t`}>Highest altitude of every OLVT rocket</title>
+      <desc id={`${id}-${L.c.key}-d`}>{summary}</desc>
+
+      <rect x={L.c.m.l} y={L.c.m.t} width={L.pw} height={L.y(LEO_FT) - L.c.m.t} class="band" />
+      <text x={L.bandLabel.x} y={L.bandLabel.y} class="ref" style={`font-size:${L.c.fsRef}px`}>{L.bandLabel.text}</text>
+
+      {L.yTicks.map((t) => (
+        <g>
+          <line x1={L.c.m.l} x2={L.c.W - L.c.m.r} y1={L.y(t)} y2={L.y(t)} class="grid" />
+          <text x={L.c.m.l - 8} y={L.y(t) + L.c.fsTick * 0.35} class="tick" text-anchor="end" style={`font-size:${L.c.fsTick}px`}>{L.c.yTickLabel(t)}</text>
+        </g>
+      ))}
+
+      <line x1={L.c.m.l} x2={L.c.W - L.c.m.r} y1={L.y(KARMAN_FT)} y2={L.y(KARMAN_FT)} class="karman" />
+      <text x={L.karmanLabel.x} y={L.karmanLabel.y} class="ref" style={`font-size:${L.c.fsRef}px`}>{L.karmanLabel.text}</text>
+
+      <line x1={L.c.m.l} x2={L.c.W - L.c.m.r} y1={L.base} y2={L.base} class="axis" />
+      {L.c.xTicks.map((t) => (
+        <text x={L.x(t)} y={L.base + L.c.fsTick + 10} class="tick" text-anchor="middle" style={`font-size:${L.c.fsTick}px`}>{t}</text>
+      ))}
+      <text x={L.x(L.c.NEXT)} y={L.base + L.c.fsTick + 10} class="tick next-tick" text-anchor="middle" style={`font-size:${L.c.fsTick}px`}>Next</text>
+
+      {L.marks.map((d) => (
+        <a href={`/vehicles/${d.v.slug}/`} class="mark">
+          <title>{d.tip}</title>
+          {d.planned ? (
+            <g>
+              <line x1={d.cx} x2={d.cx} y1={L.base} y2={d.cy + 9} class="trajectory" />
+              <circle cx={d.cx} cy={d.cy} r="7" class="ring" />
+              <text x={d.lx} y={d.ly} class="lbl lbl-strong" style={`font-size:${L.c.fs}px`}>{d.v.name}</text>
+              <text x={d.lx} y={d.ly2} class="lbl-sub" style={`font-size:${L.c.fsSub}px`}>{d.altitude}</text>
+            </g>
+          ) : (
+            <g>
+              {d.cx2 > d.cx && <line x1={d.cx} x2={d.cx2} y1={d.cy} y2={d.cy} class="span" />}
+              <circle cx={d.cx} cy={d.cy} r="5.5" class="dot" />
+              <text x={d.lx} y={d.ly} class="lbl" style={`font-size:${L.c.fs}px`}>{d.v.name}</text>
+            </g>
+          )}
+          <circle cx={d.cx} cy={d.cy} r="16" class="hit" />
+        </a>
+      ))}
+    </svg>
+  ))}
+  <figcaption class="small muted">
+    Highest altitude reached by each OLVT rocket, by first flight year. Lines show the years a design kept flying. Hokie 0.75's altitude is simulated. Log scale; select a rocket for details.
+  </figcaption>
+</figure>
+
+<style>
+  .altitude { margin: 0; display: grid; gap: 0.75rem; min-width: 0; container-type: inline-size; }
+  .chart { width: 100%; height: auto; display: block; overflow: visible; }
+  .chart-compact { display: none; }
+  @container (max-width: 480px) {
+    .chart-wide { display: none; }
+    .chart-compact { display: block; }
+  }
+  .band { fill: var(--orbit-band); }
+  .grid { stroke: var(--rule); stroke-width: 1; }
+  .axis { stroke: var(--rule-strong); stroke-width: 1; }
+  .karman { stroke: var(--ink-muted); stroke-width: 1.25; stroke-dasharray: 6 5; }
+  .tick { fill: var(--ink-muted); font-variant-numeric: tabular-nums; font-family: var(--font); }
+  .next-tick { fill: var(--mark-next); font-weight: 700; }
+  .ref { fill: var(--ink-muted); font-family: var(--font); }
+  .span { stroke: var(--mark-flown); stroke-width: 2; stroke-linecap: round; }
+  .dot { fill: var(--mark-flown); stroke: var(--chart-bg, var(--ground)); stroke-width: 2; }
+  .ring { fill: var(--chart-bg, var(--ground)); stroke: var(--mark-next); stroke-width: 3; }
+  .trajectory { stroke: var(--mark-next); stroke-width: 2; stroke-dasharray: 2 6; stroke-linecap: round; }
+  .lbl { fill: var(--ink); font-weight: 550; font-family: var(--font); }
+  .lbl-strong { font-weight: 750; }
+  .lbl-sub { fill: var(--ink-muted); font-family: var(--font); font-variant-numeric: tabular-nums; }
+  .hit { fill: transparent; }
+  .mark { cursor: pointer; }
+  .mark:hover .lbl, .mark:focus-visible .lbl { fill: var(--accent-ink); text-decoration: underline; }
+  .mark:focus { outline: none; }
+  .mark:focus-visible .hit { stroke: var(--mark-next); stroke-width: 2; }
+</style>

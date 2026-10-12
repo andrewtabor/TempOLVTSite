@@ -1,0 +1,28 @@
+---
+import Base from '../../layouts/Base.astro';
+import Review from '../../components/Review.astro';
+import { posts, postDate, type Post } from '../../lib/data';
+
+export function getStaticPaths() {
+  return posts.map((p) => ({ params: { slug: p.slug }, props: { p } }));
+}
+interface Props { p: Post }
+const { p } = Astro.props;
+const { Content } = p;
+---
+<Base title={p.title} description={p.summary}>
+  <article class="wrap post">
+    <a href="/news/" class="crumb">News</a>
+    <h1 class="title">{p.title}</h1>
+    <time class="muted tnum">{postDate(p)}{p.draft ? ', draft' : ''}</time>
+    {p.review?.map((r) => <Review id={r.id} note={r.note} />)}
+    <div class="prose"><Content /></div>
+  </article>
+</Base>
+
+<style>
+  .post { display: grid; gap: 1.25rem; padding-block: clamp(2.5rem, 6vw, 4.5rem) clamp(3rem, 7vw, 5rem); }
+  .crumb { font-size: var(--step--1); font-weight: 600; }
+  .title { font-size: var(--step-3); max-width: 24ch; }
+  .prose { font-size: 1.125rem; }
+</style>

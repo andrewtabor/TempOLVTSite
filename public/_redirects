@@ -1,0 +1,28 @@
+# Old WordPress URLs -> new pages (301 = permanent). Cloudflare reads this file.
+# Each old address is listed with and without its trailing slash.
+/launch-vehicles/   /vehicles/                  301
+/launch-vehicles    /vehicles/                  301
+/hokie-0-25/        /vehicles/hokie-0-25/       301
+/hokie-0-25         /vehicles/hokie-0-25/       301
+/hokie-0-5/         /vehicles/hokie-0-5/        301
+/hokie-0-5          /vehicles/hokie-0-5/        301
+/hokie-0-75/        /vehicles/hokie-0-75/       301
+/hokie-0-75         /vehicles/hokie-0-75/       301
+/test-turkey/       /vehicles/test-turkey/      301
+/test-turkey        /vehicles/test-turkey/      301
+/skipper-1/         /vehicles/skipper-1/        301
+/skipper-1          /vehicles/skipper-1/        301
+/skipper-2/         /vehicles/skipper-2/        301
+/skipper-2          /vehicles/skipper-2/        301
+/the-certifier/     /vehicles/the-certifier/    301
+/the-certifier      /vehicles/the-certifier/    301
+/the-team/          /team/                      301
+/the-team           /team/                      301
+/the-lab/           /lab/                       301
+/the-lab            /lab/                       301
+/membership/        /join/                      301
+/membership         /join/                      301
+/newsletter/        /news/                      301
+/newsletter         /news/                      301
+/test-2/            /                           301
+/test-2             /                           301

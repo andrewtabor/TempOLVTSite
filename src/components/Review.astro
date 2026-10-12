@@ -1,0 +1,14 @@
+---
+// A note for human reviewers. Renders only in the review preview
+// (PUBLIC_REVIEW=1), never on the public site. `id` matches REVIEW.md.
+import { reviewMode } from '../lib/data';
+
+interface Props { id: string; note?: string }
+const { id, note } = Astro.props;
+---
+{reviewMode && (
+  <aside class="review" role="note">
+    <strong>Review {id}</strong>
+    {note ? <span>{note}</span> : <span><slot /></span>}
+  </aside>
+)}

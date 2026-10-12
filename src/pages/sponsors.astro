@@ -1,0 +1,93 @@
+---
+import Base from '../layouts/Base.astro';
+import Review from '../components/Review.astro';
+import { site, sponsors, sponsorData, reviewMode } from '../lib/data';
+
+const byTier = sponsorData.tiers
+  .map((tier) => ({ tier, list: sponsors.filter((s) => s.tier === tier) }))
+  .filter((t) => t.list.length > 0);
+---
+<Base title="Sponsors" description="Sponsor the Orbital Launch Vehicle Team: resume book access, your logo on every rocket we fly, and more.">
+  <section class="wrap head">
+    <h1>Sponsors</h1>
+    <p class="lead">Support student-built rockets, and meet the engineers who build them.</p>
+    <div class="actions">
+      {site.forms.sponsorInterest
+        ? <a class="button" href={site.forms.sponsorInterest} rel="noopener" target="_blank">Tell us about your company</a>
+        : <span class="email-cta">Email <strong class="email">{site.email}</strong> to start a conversation.</span>}
+      {site.sponsorPacketUrl && <a class="button secondary" href={site.sponsorPacketUrl} rel="noopener" target="_blank">Sponsorship packet (PDF)</a>}
+    </div>
+    <Review id="R18" note="Create a team-owned Microsoft Form for sponsor interest (company, contact, type of support) and paste its link into src/data/site.yaml. The button appears automatically." />
+    <Review id="R19" note="Add a sponsorship packet PDF with tiers and pricing, if the team has one. It links from here once sponsorPacketUrl is set." />
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">What sponsors get</h2>
+    <ul class="perks">
+      {sponsorData.perks.map((p) => (
+        <li><h3>{p.title}</h3><p>{p.text}</p></li>
+      ))}
+    </ul>
+    <Review id="R3" note="The old page promised that all members are clearable in the United States. This prototype drops that line: the team can't guarantee it for every member. Leadership should approve the wording sponsors see." />
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">Current sponsors</h2>
+    {byTier.length > 0 ? (
+      byTier.map((t) => (
+        <div class="tier">
+          <h3 class="tier-name">{t.tier}</h3>
+          <ul class="logos">
+            {t.list.map((s) => (
+              <li>
+                <a href={s.url} rel="noopener" target="_blank">
+                  {s.logo ? <img src={s.logo} alt={s.name} /> : <span>{s.name}</span>}
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      ))
+    ) : reviewMode ? (
+      <>
+        <Review id="R2" note="The old page's sponsor logos couldn't be recovered. List every current sponsor in src/data/sponsors.yaml with a tier and logo file, and confirm each has agreed to be shown. The tier names there are placeholders too." />
+        <ul class="logos placeholder">
+          {Array.from({ length: 6 }).map(() => <li><span>Sponsor logo</span></li>)}
+        </ul>
+      </>
+    ) : (
+      <p class="muted">Become the first sponsor listed here. Email <span class="email">{site.email}</span>.</p>
+    )}
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">University support</h2>
+    <ul class="support">
+      {site.supporters.map((s) => <li>{s}</li>)}
+    </ul>
+  </section>
+</Base>
+
+<style>
+  .head { display: grid; gap: 1.25rem; padding-block: clamp(2.5rem, 6vw, 4.5rem) 2rem; }
+  .email-cta { font-size: var(--step-1); }
+  .email { user-select: all; overflow-wrap: anywhere; }
+  .section-title { font-size: var(--step-2); margin-bottom: 1.5rem; }
+
+  .perks { list-style: none; margin: 0 0 1.5rem; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 2rem 3rem; }
+  .perks li { display: grid; gap: 0.5rem; align-content: start; border-top: 2px solid var(--ink); padding-top: 1rem; }
+  .perks p { max-width: 50ch; }
+
+  .tier + .tier { margin-top: 2rem; }
+  .tier-name { font-size: 1rem; font-stretch: 100%; font-variation-settings: "wdth" 100; color: var(--ink-muted); font-weight: 600; margin-bottom: 0.75rem; }
+  .logos { list-style: none; margin: 1rem 0 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr)); gap: 1rem; }
+  .logos li { display: grid; place-items: center; min-height: 6rem; border: 1px solid var(--rule); border-radius: var(--radius); padding: 1rem; background: var(--surface); }
+  .logos img { max-height: 3.5rem; width: auto; }
+  .logos.placeholder li { border-style: dashed; background: transparent; color: var(--ink-muted); font-size: var(--step--1); }
+
+  .support { margin: 0; padding-left: 1.1rem; display: grid; gap: 0.4rem; }
+
+  @media (max-width: 760px) {
+    .perks { grid-template-columns: 1fr; }
+  }
+</style>

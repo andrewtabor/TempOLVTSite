@@ -1,0 +1,63 @@
+---
+import Base from '../../layouts/Base.astro';
+import AltitudeChart from '../../components/AltitudeChart.astro';
+import { vehicles, vehicleYears, statusLabel } from '../../lib/data';
+
+const list = [...vehicles].reverse();
+---
+<Base title="Vehicles" description="Every rocket the Orbital Launch Vehicle Team has designed, built and flown since 2016, and the space shot it's building next.">
+  <section class="wrap intro">
+    <div class="intro-text">
+      <h1>Vehicles</h1>
+      <p class="lead">Each rocket tests something the next one needs. Hokie 0.75 is the first designed to reach space.</p>
+    </div>
+    <AltitudeChart id="vehicles-chart" />
+  </section>
+
+  <section class="wrap list-section">
+    <ol class="vehicle-list" reversed>
+      {list.map((v) => (
+        <li>
+          <a href={`/vehicles/${v.slug}/`} class="vehicle-name vname">{v.name}</a>
+          <div class="meta">
+            <span class="pill" data-status={v.status}>{statusLabel[v.status]}</span>
+            <span class="muted tnum">{vehicleYears(v)}</span>
+          </div>
+          <p>{v.summary}</p>
+        </li>
+      ))}
+    </ol>
+  </section>
+</Base>
+
+<style>
+  .intro {
+    display: grid;
+    grid-template-columns: minmax(0, 4fr) minmax(0, 6fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: center;
+    padding-block: clamp(2.5rem, 6vw, 4.5rem);
+    background: linear-gradient(var(--rule), var(--rule)) var(--gutter) 100% / calc(100% - 2 * var(--gutter)) 1px no-repeat;
+  }
+  .intro-text { display: grid; gap: 1.25rem; min-width: 0; }
+
+  .list-section { padding-block: clamp(2rem, 5vw, 3.5rem) clamp(3rem, 7vw, 5rem); }
+  .vehicle-list { list-style: none; margin: 0; padding: 0; display: grid; }
+  .vehicle-list li {
+    display: grid;
+    grid-template-columns: minmax(0, 1.1fr) minmax(0, 0.9fr) minmax(0, 1.6fr);
+    gap: 0.5rem 2rem;
+    align-items: baseline;
+    padding-block: 1.4rem;
+    border-bottom: 1px solid var(--rule);
+  }
+  .vname { font-size: var(--step-2); color: var(--ink); text-decoration: none; line-height: 1.1; }
+  .vname:hover { color: var(--accent-ink); text-decoration: underline; }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+  .vehicle-list p { max-width: 52ch; }
+
+  @media (max-width: 900px) {
+    .intro { grid-template-columns: 1fr; }
+    .vehicle-list li { grid-template-columns: 1fr; }
+  }
+</style>

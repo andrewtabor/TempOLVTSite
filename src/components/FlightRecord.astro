@@ -1,0 +1,44 @@
+---
+// Table of every vehicle. Doubles as the text version of the altitude chart.
+import { vehicles, vehicleYears, statusLabel } from '../lib/data';
+
+const fmt = (n: number) => n.toLocaleString('en-US');
+const rows = [...vehicles].reverse();
+---
+<div class="table-scroll">
+  <table class="record">
+    <caption class="visually-hidden">Every OLVT rocket, newest first</caption>
+    <thead>
+      <tr>
+        <th scope="col">Rocket</th>
+        <th scope="col">Years</th>
+        <th scope="col" class="num">Flights</th>
+        <th scope="col" class="num">Highest altitude</th>
+        <th scope="col">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {rows.map((v) => (
+        <tr>
+          <th scope="row"><a href={`/vehicles/${v.slug}/`} class="vehicle-name">{v.name}</a></th>
+          <td class="tnum">{vehicleYears(v)}</td>
+          <td class="num">{v.flights ? (v.flightsNote ? `${v.flights}+` : v.flights) : '—'}</td>
+          <td class="num">{fmt(v.apogeeFt)} ft{v.apogeeSimulated ? ' (sim.)' : ''}</td>
+          <td><span class="pill" data-status={v.status}>{statusLabel[v.status]}</span></td>
+        </tr>
+      ))}
+    </tbody>
+  </table>
+</div>
+
+<style>
+  .table-scroll { overflow-x: auto; min-width: 0; }
+  .record { width: 100%; border-collapse: collapse; min-width: 34rem; }
+  .record th, .record td { text-align: left; padding: 0.85rem 1rem 0.85rem 0; border-bottom: 1px solid var(--rule); vertical-align: middle; }
+  .record thead th { font-size: var(--step--1); font-weight: 600; color: var(--ink-muted); border-bottom-color: var(--rule-strong); padding-block: 0.5rem; }
+  .record tbody th { font-weight: 400; }
+  .record tbody th a { color: var(--ink); text-decoration: none; font-size: 1.125rem; }
+  .record tbody th a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .num { text-align: right !important; font-variant-numeric: tabular-nums; padding-right: 2rem !important; }
+  .visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+</style>

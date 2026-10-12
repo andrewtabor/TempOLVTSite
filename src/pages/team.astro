@@ -1,0 +1,60 @@
+---
+import Base from '../layouts/Base.astro';
+import Review from '../components/Review.astro';
+import Person from '../components/Person.astro';
+import { team, subteams } from '../lib/data';
+
+const leadership = team.members.filter((m) => m.subteam === 'leadership');
+const leadsFor = (id: string) => team.members.filter((m) => m.subteam === id);
+---
+<Base title="Team" description="The students leading the Orbital Launch Vehicle Team's seven subteams.">
+  <section class="wrap head">
+    <h1>Team</h1>
+    <p class="lead">Seven subteams, led by students, build every OLVT rocket. These are the {team.year} leads.</p>
+    <Review id="R13" note="Confirm every name, role and spelling, and collect headshots with each person's consent. Photos go in public/team/ and are listed in src/data/team.yaml." />
+  </section>
+
+  <section class="wrap group">
+    <h2 class="group-name">Leadership</h2>
+    <ul class="people">
+      {leadership.map((m) => <Person m={m} />)}
+    </ul>
+  </section>
+
+  {subteams.map((s) => (
+    <section class="wrap group" id={s.id}>
+      <div class="group-text">
+        <h2 class="group-name">{s.name}</h2>
+        <p class="muted">{s.description}</p>
+      </div>
+      <ul class="people">
+        {leadsFor(s.id).map((m) => <Person m={m} />)}
+      </ul>
+    </section>
+  ))}
+
+  <section class="wrap cta">
+    <p>Want to work on one of these subteams?</p>
+    <a class="button" href="/join/">See how to join</a>
+  </section>
+</Base>
+
+<style>
+  .head { display: grid; gap: 1.25rem; padding-block: clamp(2.5rem, 6vw, 4.5rem) 2.5rem; }
+  .group {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.6fr);
+    gap: 1.25rem clamp(2rem, 5vw, 4rem);
+    padding-block: 2.25rem;
+    background: linear-gradient(var(--rule), var(--rule)) var(--gutter) 0 / calc(100% - 2 * var(--gutter)) 1px no-repeat;
+  }
+  .group-text { display: grid; gap: 0.6rem; align-content: start; min-width: 0; }
+  .group-text p { max-width: 46ch; }
+  .group-name { font-size: var(--step-1); }
+  .people { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fill, minmax(13rem, 1fr)); gap: 1.25rem; align-content: start; }
+  .cta { display: flex; flex-wrap: wrap; align-items: center; gap: 1rem 1.5rem; padding-block: 3rem 5rem; background: linear-gradient(var(--rule), var(--rule)) var(--gutter) 0 / calc(100% - 2 * var(--gutter)) 1px no-repeat; font-size: var(--step-1); }
+
+  @media (max-width: 760px) {
+    .group { grid-template-columns: 1fr; }
+  }
+</style>

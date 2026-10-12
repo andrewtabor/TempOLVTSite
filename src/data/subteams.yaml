@@ -1,0 +1,48 @@
+# The seven subteams. Used on both the Team and Join pages, so edit once here.
+# Copy was tightened from the old site. A lead from each subteam should read
+# their entry. REVIEW R11.
+
+- id: avionics
+  name: Avionics
+  description: >-
+    Designs, builds and tests the flight computers and sensors that let our
+    rockets fly autonomously and safely, and that send flight data back to
+    the ground.
+
+- id: business
+  name: Business
+  description: >-
+    Raises and manages team funds, runs corporate outreach and sponsor
+    relations, and grows the team's brand on campus and online.
+
+- id: launch-operations
+  name: Launch Operations
+  description: >-
+    Keeps launches safe and orderly: writes test and launch-day procedures,
+    coordinates events, manages risk and designs launch towers.
+
+- id: propulsion
+  name: Propulsion
+  description: >-
+    Designs, builds and tests motor hardware so each rocket reaches its
+    intended altitude and velocity precisely and safely.
+
+- id: research-development
+  name: Research & Development
+  description: >-
+    Takes on the team's hardest end-to-end development projects across
+    disciplines. Recent work includes composite fin manufacturing and the
+    Skipper 2 interstage.
+
+- id: structures
+  name: Structures
+  description: >-
+    Designs, builds and tests airframes, recovery systems and staging
+    mechanisms using CAD, finite element analysis and in-house manufacturing.
+
+- id: trajectory-aero
+  name: Trajectory & Aerodynamic Analysis
+  description: >-
+    Predicts each vehicle's flight path and its aerodynamic and thermal loads
+    using flight simulation, finite element analysis and computational fluid
+    dynamics.

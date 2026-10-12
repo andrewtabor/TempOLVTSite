@@ -1,0 +1,16 @@
+{
+  "name": "olvt-site",
+  "type": "module",
+  "private": true,
+  "scripts": {
+    "dev": "astro dev",
+    "build": "astro build",
+    "preview": "astro preview",
+    "build:review": "PUBLIC_REVIEW=1 astro build",
+    "build:artifact": "PUBLIC_REVIEW=1 astro build && node scripts/make-preview.mjs"
+  },
+  "dependencies": {
+    "astro": "^7.3.8",
+    "js-yaml": "^5.4.3"
+  }
+}

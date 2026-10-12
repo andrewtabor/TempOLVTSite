@@ -1,0 +1,16 @@
+---
+import Base from '../layouts/Base.astro';
+---
+<Base title="Page not found">
+  <section class="wrap nf">
+    <h1>Page not found</h1>
+    <p class="lead">That page doesn't exist, or it moved when the site was rebuilt.</p>
+    <div class="actions">
+      <a class="button" href="/">Go to the home page</a>
+      <a class="button secondary" href="/vehicles/">See our vehicles</a>
+    </div>
+  </section>
+</Base>
+<style>
+  .nf { display: grid; gap: 1.5rem; padding-block: clamp(3rem, 10vw, 7rem); }
+</style>

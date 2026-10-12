@@ -1,0 +1,79 @@
+# Leadership and subteam leads. Update this list each spring when officers
+# change. `subteam` must match an `id` in subteams.yaml (or be "leadership").
+# `photo` is a path under public/team/ (for example /team/jane-doe.jpg).
+# Leave `photo` blank to show initials. REVIEW R13.
+
+year: 2026–27
+
+members:
+  - name: Drew Samtmann
+    role: Co-President, Chief Engineer
+    subteam: leadership
+    photo: ""
+  - name: Bella Guereca
+    role: Co-President, Program Manager
+    subteam: leadership
+    photo: ""
+  - name: Luke Thomas
+    role: Vice President
+    subteam: leadership
+    photo: ""
+
+  - name: Shrey Goel
+    role: Avionics Lead
+    subteam: avionics
+    photo: ""
+  - name: Thomas Bishop
+    role: Avionics Lead
+    subteam: avionics
+    photo: ""
+
+  - name: Max Hetz
+    role: Business Lead
+    subteam: business
+    photo: ""
+
+  - name: Nicholas DiFranza
+    role: Launch Operations Lead
+    subteam: launch-operations
+    photo: ""
+
+  - name: Pranav Alagukumaran
+    role: Propulsion Lead
+    subteam: propulsion
+    photo: ""
+  - name: Leo Kovatch
+    role: Propulsion Lead
+    subteam: propulsion
+    photo: ""
+
+  - name: Jude Molique
+    role: R&D Lead
+    subteam: research-development
+    photo: ""
+  - name: Victoria Jarocki
+    role: R&D Lead
+    subteam: research-development
+    photo: ""
+
+  - name: John Musante
+    role: Structures Lead
+    subteam: structures
+    photo: ""
+  - name: Samantha Rao
+    role: Structures Lead
+    subteam: structures
+    photo: ""
+  - name: Dominic Di Cocco
+    role: Structures Lead
+    subteam: structures
+    photo: ""
+
+  - name: Chase Spiegler
+    role: T&AA Lead
+    subteam: trajectory-aero
+    photo: ""
+  - name: Kevin Tieu
+    role: T&AA Lead
+    subteam: trajectory-aero
+    photo: ""

@@ -1,0 +1,36 @@
+# Sponsors shown on the Sponsors page and the home page strip.
+# The old site's sponsor logos could not be recovered as text, so this list
+# starts empty. REVIEW R2: add each sponsor with written permission to display
+# their logo.
+#
+# Example entry:
+#   - name: Example Aerospace
+#     tier: Gold          # must match one of the tiers below
+#     url: https://example.com
+#     logo: /sponsors/example-aerospace.svg   # file in public/sponsors/
+
+tiers:
+  - Platinum
+  - Gold
+  - Silver
+  - Supporter
+
+sponsors: []
+
+perks:
+  - title: Resume book
+    text: >-
+      Every sponsor gets the team's resume book: students with hands-on
+      design, build and launch experience, looking for internships, co-ops
+      and full-time roles.
+  - title: Your logo on our rockets
+    text: >-
+      Sponsor logos fly on every launch vehicle the team builds.
+  - title: Social media and video
+    text: >-
+      Sponsor logos and mission statements appear in every promotional video
+      the team produces.
+  - title: Team apparel
+    text: >-
+      Sponsor logos go on team apparel and merchandise worn at launches,
+      career fairs and campus events.

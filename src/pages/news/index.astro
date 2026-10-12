@@ -1,0 +1,35 @@
+---
+import Base from '../../layouts/Base.astro';
+import { posts, postDate } from '../../lib/data';
+---
+<Base title="News" description="Launch reports and milestones from the Orbital Launch Vehicle Team.">
+  <section class="wrap head">
+    <h1>News</h1>
+    <p class="lead">Launch reports, milestones and team updates.</p>
+  </section>
+
+  <section class="wrap list">
+    {posts.length > 0 ? (
+      <ul class="posts">
+        {posts.map((p) => (
+          <li>
+            <time class="small muted tnum">{postDate(p)}{p.draft ? ', draft' : ''}</time>
+            <a href={`/news/${p.slug}/`} class="title">{p.title}</a>
+            <p class="muted">{p.summary}</p>
+          </li>
+        ))}
+      </ul>
+    ) : (
+      <p class="muted">No posts yet. Follow the team on Instagram for launch updates.</p>
+    )}
+  </section>
+</Base>
+
+<style>
+  .head { display: grid; gap: 1.25rem; padding-block: clamp(2.5rem, 6vw, 4.5rem) 2rem; }
+  .list { padding-bottom: clamp(3rem, 7vw, 5rem); }
+  .posts { list-style: none; margin: 0; padding: 0; display: grid; border-top: 1px solid var(--rule); max-width: 52rem; }
+  .posts li { display: grid; gap: 0.35rem; padding-block: 1.5rem; border-bottom: 1px solid var(--rule); }
+  .title { font-size: var(--step-2); font-weight: 700; font-stretch: 108%; font-variation-settings: "wdth" 108; color: var(--ink); text-decoration: none; line-height: 1.2; }
+  .title:hover { color: var(--accent-ink); text-decoration: underline; }
+</style>

@@ -1,0 +1,32 @@
+---
+import { initials, type Member } from '../lib/data';
+interface Props { m: Member }
+const { m } = Astro.props;
+---
+<li class="person">
+  {m.photo
+    ? <img class="avatar" src={m.photo} alt={`${m.name}, ${m.role}`} width="64" height="64" loading="lazy" />
+    : <span class="avatar initials" aria-hidden="true">{initials(m.name)}</span>}
+  <span class="who">
+    <span class="name">{m.name}</span>
+    <span class="role">{m.role}</span>
+  </span>
+</li>
+
+<style>
+  .person { display: flex; align-items: center; gap: 0.85rem; min-width: 0; }
+  .avatar { width: 3.5rem; height: 3.5rem; border-radius: 50%; flex: none; object-fit: cover; }
+  .initials {
+    display: grid;
+    place-items: center;
+    background: var(--surface);
+    border: 1px solid var(--rule-strong);
+    color: var(--ink-muted);
+    font-weight: 700;
+    font-stretch: 112%; font-variation-settings: "wdth" 112;
+    font-size: 0.95rem;
+  }
+  .who { display: grid; min-width: 0; }
+  .name { font-weight: 650; }
+  .role { color: var(--ink-muted); font-size: 0.9rem; }
+</style>

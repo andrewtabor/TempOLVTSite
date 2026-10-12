@@ -1,0 +1,87 @@
+---
+import Base from '../../layouts/Base.astro';
+import Review from '../../components/Review.astro';
+import Photo from '../../components/Photo.astro';
+import { vehicles, vehicleYears, statusLabel, type Vehicle } from '../../lib/data';
+
+export function getStaticPaths() {
+  return vehicles.map((v, i) => ({
+    params: { slug: v.slug },
+    props: { v, prev: vehicles[i - 1] ?? null, next: vehicles[i + 1] ?? null },
+  }));
+}
+
+interface Props { v: Vehicle; prev: Vehicle | null; next: Vehicle | null }
+const { v, prev, next } = Astro.props;
+const { Content } = v;
+---
+<Base title={v.name} description={v.summary}>
+  <article>
+    <header class="wrap head">
+      <a href="/vehicles/" class="crumb">Vehicles</a>
+      <h1 class="vehicle-name title">{v.name}</h1>
+      <div class="meta">
+        <span class="pill" data-status={v.status}>{statusLabel[v.status]}</span>
+        <span class="muted tnum">{vehicleYears(v)}</span>
+      </div>
+      <p class="lead">{v.summary}</p>
+    </header>
+
+    <div class="wrap body">
+      <div class="main">
+        <Photo src={v.photo} alt={v.photoNeeded} needed={v.photoNeeded} />
+        <div class="prose"><Content /></div>
+        {v.review?.map((r) => <Review id={r.id} note={r.note} />)}
+      </div>
+      <aside class="side" aria-label={`${v.name} specifications`}>
+        <h2 class="side-head">{v.apogeeSimulated ? 'Design targets' : 'Flight data'}</h2>
+        <dl class="specs">
+          {v.specs.map((s) => (
+            <div><dt>{s.label}</dt><dd>{s.value}</dd></div>
+          ))}
+        </dl>
+      </aside>
+    </div>
+
+    <nav class="wrap pager" aria-label="More vehicles">
+      {prev ? <a href={`/vehicles/${prev.slug}/`} class="prev"><span class="small muted">Earlier</span><span class="vehicle-name">{prev.name}</span></a> : <span />}
+      {next ? <a href={`/vehicles/${next.slug}/`} class="next"><span class="small muted">Later</span><span class="vehicle-name">{next.name}</span></a> : <span />}
+    </nav>
+  </article>
+</Base>
+
+<style>
+  .head { display: grid; gap: 1rem; justify-items: start; padding-block: clamp(2.5rem, 6vw, 4.5rem) 2rem; }
+  .crumb { font-size: var(--step--1); font-weight: 600; }
+  .title { font-size: clamp(3rem, 10vw, 7rem); line-height: 0.92; }
+  .meta { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+  .lead { max-width: 44ch; }
+
+  .body {
+    display: grid;
+    grid-template-columns: minmax(0, 1.6fr) minmax(0, 1fr);
+    gap: clamp(2rem, 5vw, 4rem);
+    align-items: start;
+    padding-block: 1rem clamp(3rem, 7vw, 5rem);
+  }
+  .main { display: grid; gap: 2rem; min-width: 0; }
+  .side { position: sticky; top: 1.5rem; min-width: 0; }
+  .side-head { font-size: 1rem; font-stretch: 100%; font-variation-settings: "wdth" 100; font-weight: 600; color: var(--ink-muted); margin-bottom: 0.75rem; }
+
+  .pager {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    padding-block: 2rem 4rem;
+    background: linear-gradient(var(--rule), var(--rule)) var(--gutter) 0 / calc(100% - 2 * var(--gutter)) 1px no-repeat;
+  }
+  .pager a { display: grid; gap: 0.2rem; text-decoration: none; color: var(--ink); }
+  .pager a .vehicle-name { font-size: var(--step-1); }
+  .pager a:hover .vehicle-name { color: var(--accent-ink); text-decoration: underline; }
+  .pager .next { text-align: right; }
+
+  @media (max-width: 860px) {
+    .body { grid-template-columns: 1fr; }
+    .side { position: static; order: -1; }
+  }
+</style>

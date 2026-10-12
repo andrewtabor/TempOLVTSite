@@ -1,0 +1,132 @@
+---
+import Base from '../layouts/Base.astro';
+import Review from '../components/Review.astro';
+import { site, subteams, isoDate, formatDate } from '../lib/data';
+
+const a = site.applications;
+const opens = isoDate(a.opens);
+const priority = isoDate(a.priorityDeadline);
+const deadline = isoDate(a.deadline);
+
+// Build-time state. A small script below re-checks against today's date in
+// the visitor's browser, so the page stays right between rebuilds.
+const today = new Date().toISOString().slice(0, 10);
+const buildState = opens && today < opens ? 'upcoming' : today > deadline ? 'closed' : 'open';
+
+const reasons = [
+  { title: 'Set your own mission', text: "OLVT isn't bound by design-competition rules. The team sets its own goals and designs its own missions." },
+  { title: 'Real responsibility from day one', text: "New members and veterans alike own mission-critical design, build and launch work." },
+  { title: 'Experience employers look for', text: 'Members get the hands-on design, build and flight experience top employers look for, and have gone on to internships and jobs across the industry.' },
+];
+
+const faq = [
+  { q: 'Who can join?', a: 'Virginia Tech students from any major. Engineers work on the rockets, and business members manage funding, sponsor relations and outreach.' },
+  { q: 'What happens after I join?', a: 'During onboarding, every member builds and flies their own rocket, The Certifier, to earn a Tripoli Level 1 high-power rocketry certification.' },
+  { q: 'Where does the team work?', a: "In Virginia Tech's Advanced Engineering Design Lab, with testing and most member launches at Kentland Farm." },
+];
+---
+<Base title="Join" description="How to join the Orbital Launch Vehicle Team at Virginia Tech.">
+  <section class="wrap head">
+    <h1>Join OLVT</h1>
+    <p class="lead">Design, build and fly rockets with a student team working toward orbit.</p>
+  </section>
+
+  <section class="wrap">
+    <div class="status" data-opens={opens} data-deadline={deadline} data-state={buildState}>
+      <div class="state" data-show="open">
+        <h2>Applications for {a.term} are open</h2>
+        <p>
+          {priority && <>Apply by <strong class="tnum">{formatDate(priority)}</strong> for priority review. </>}
+          The final deadline is <strong class="tnum">{formatDate(deadline)}</strong>.
+        </p>
+        <p><a class="button" href={a.formUrl} rel="noopener" target="_blank">Apply now</a></p>
+      </div>
+      <div class="state" data-show="upcoming">
+        <h2>Applications for {a.term} open {formatDate(opens)}</h2>
+        <p>Follow us on <a href={site.socials[0].url} rel="noopener" target="_blank">Instagram</a> for reminders.</p>
+      </div>
+      <div class="state" data-show="closed">
+        <h2>Applications for {a.term} are closed</h2>
+        <p>The {a.term} deadline was {formatDate(deadline)}. Dates for the next cycle will be posted here and on <a href={site.socials[0].url} rel="noopener" target="_blank">Instagram</a>. Questions? Email <span class="email">{site.email}</span>.</p>
+      </div>
+    </div>
+    <Review id="R5" note="Set the next cycle's dates and form link in src/data/site.yaml. The page switches between upcoming, open and closed on its own. The current link is the fall 2026 form." />
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">Why OLVT</h2>
+    <ul class="reasons">
+      {reasons.map((r) => (
+        <li><h3>{r.title}</h3><p>{r.text}</p></li>
+      ))}
+    </ul>
+    <Review id="R17" note="The old page showed employer logos as one image from 2022. Add a current list of where members have interned and worked. Decide on logos (need permission) or plain text." />
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">Subteams</h2>
+    <p class="muted intro">Engineering and business work is split across seven subteams.</p>
+    <dl class="subteams">
+      {subteams.map((s) => (
+        <div><dt><a href={`/team/#${s.id}`}>{s.name}</a></dt><dd>{s.description}</dd></div>
+      ))}
+    </dl>
+  </section>
+
+  <section class="section wrap">
+    <h2 class="section-title">Questions</h2>
+    <div class="faq">
+      {faq.map((f) => (
+        <details>
+          <summary>{f.q}</summary>
+          <p>{f.a}</p>
+        </details>
+      ))}
+    </div>
+    <Review id="R12" note="These answers use only facts from the old site. Add the questions recruits actually ask: time commitment, meeting times, whether experience is required, dues." />
+  </section>
+</Base>
+
+<script is:inline>
+  (function () {
+    var el = document.querySelector('.status');
+    if (!el) return;
+    var t = new Date();
+    var today = t.getFullYear() + '-' + String(t.getMonth() + 1).padStart(2, '0') + '-' + String(t.getDate()).padStart(2, '0');
+    var opens = el.dataset.opens, deadline = el.dataset.deadline;
+    el.dataset.state = opens && today < opens ? 'upcoming' : today > deadline ? 'closed' : 'open';
+  })();
+</script>
+
+<style>
+  .head { display: grid; gap: 1.25rem; padding-block: clamp(2.5rem, 6vw, 4.5rem) 2rem; }
+  .section-title { font-size: var(--step-2); margin-bottom: 1.5rem; }
+  .intro { margin-top: -0.75rem; margin-bottom: 1.5rem; }
+
+  .status { background: var(--surface); border: 1px solid var(--rule); border-left: 4px solid var(--mark-next); border-radius: var(--radius); padding: clamp(1.25rem, 3vw, 2rem); margin-bottom: 1rem; }
+  .state { display: none; gap: 0.75rem; }
+  .status[data-state="open"] [data-show="open"],
+  .status[data-state="upcoming"] [data-show="upcoming"],
+  .status[data-state="closed"] [data-show="closed"] { display: grid; }
+  .state h2 { font-size: var(--step-2); }
+  .state p { max-width: 62ch; }
+  .email { user-select: all; font-weight: 600; }
+
+  .reasons { list-style: none; margin: 0 0 1.5rem; padding: 0; display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2rem; }
+  .reasons li { display: grid; gap: 0.5rem; align-content: start; border-top: 2px solid var(--ink); padding-top: 1rem; }
+
+  .subteams { margin: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(18rem, 1fr)); gap: 1.75rem 2.5rem; }
+  .subteams > div { display: grid; gap: 0.35rem; align-content: start; }
+  .subteams dt a { font-weight: 700; font-stretch: 112%; font-variation-settings: "wdth" 112; font-size: 1.125rem; color: var(--ink); text-decoration: none; }
+  .subteams dt a:hover { color: var(--accent-ink); text-decoration: underline; }
+  .subteams dd { margin: 0; color: var(--ink-muted); }
+
+  .faq { display: grid; border-top: 1px solid var(--rule); margin-bottom: 1.5rem; max-width: 52rem; }
+  .faq details { border-bottom: 1px solid var(--rule); }
+  .faq summary { cursor: pointer; padding-block: 1rem; font-weight: 650; font-size: 1.0625rem; list-style-position: outside; }
+  .faq details p { padding-bottom: 1.1rem; max-width: 62ch; }
+
+  @media (max-width: 860px) {
+    .reasons { grid-template-columns: 1fr; }
+  }
+</style>
