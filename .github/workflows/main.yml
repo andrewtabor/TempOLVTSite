@@ -1,0 +1,55 @@
+name: Deploy preview to GitHub Pages
+
+on:
+  push:
+    branches: [main, master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - id: dir
+        name: Find the site folder
+        run: |
+          if [ -f package.json ]; then echo "d=." >> "$GITHUB_OUTPUT";
+          else echo "d=$(dirname "$(ls */package.json | head -1)")" >> "$GITHUB_OUTPUT"; fi
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - id: pages
+        uses: actions/configure-pages@v5
+      - run: npm ci
+        working-directory: ${{ steps.dir.outputs.d }}
+      - run: npx astro build
+        working-directory: ${{ steps.dir.outputs.d }}
+        env:
+          PUBLIC_REVIEW: "1"
+      - run: node scripts/rebase.mjs
+        working-directory: ${{ steps.dir.outputs.d }}
+        env:
+          BASE_PATH: ${{ steps.pages.outputs.base_path }}
+          NOINDEX: "1"
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ${{ steps.dir.outputs.d }}/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
